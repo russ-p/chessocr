@@ -19,9 +19,7 @@ import by.bsu.chessocr.webcam.WebCamInfo;
 import by.bsu.chessocr.webcam.WebCamStreamService;
 import javafx.beans.Observable;
 import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.Property;
 import javafx.beans.property.SimpleDoubleProperty;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Worker.State;
@@ -30,18 +28,16 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.Slider;
+import javafx.scene.control.TextArea;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
-import javafx.util.converter.DoubleStringConverter;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
-import javafx.scene.control.Alert.AlertType;
-import javafx.scene.control.Slider;
-import javafx.scene.control.Label;
-import javafx.scene.control.Button;
 
 public class MainController implements Initializable, ChessBoardModelListener {
 
@@ -256,6 +252,7 @@ public class MainController implements Initializable, ChessBoardModelListener {
 	}
 
 	// установка тестового изображения из файла
+	@SuppressWarnings("unused")
 	private void setTestImage(String imagePath) {
 		try {
 			BufferedImage bufferedImage = null;
