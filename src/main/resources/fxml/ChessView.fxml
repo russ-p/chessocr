@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+
+<SplitPane dividerPositions="0.35, 0.7" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="553.0" prefWidth="1179.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="by.bsu.chessocr.MainController">
+	<items>
+		<BorderPane fx:id="cam1ImgHolder" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+			<center>
+				<ImageView fx:id="cam1Image" fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true" BorderPane.alignment="CENTER" />
+			</center>
+			<top>
+				<ToolBar prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+					<items>
+						<Label text="Камера:" />
+						<ChoiceBox fx:id="cam1Chooser" prefHeight="26.0" prefWidth="190.0" />
+						<Button fx:id="startBtn" mnemonicParsing="false" onAction="#startCam1" text="Пуск" />
+						<Button fx:id="stopBtn" mnemonicParsing="false" onAction="#stopCam1" text="Стоп" />
+					</items>
+				</ToolBar>
+			</top>
+		</BorderPane>
+		<BorderPane fx:id="rightImgHolder" prefHeight="200.0" prefWidth="200.0">
+			<center>
+				<ImageView fx:id="rightImg" fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true" BorderPane.alignment="CENTER" />
+			</center>
+			<top>
+				<ToolBar prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+					<items>
+						<Label text="Вид на доску" />
+						<Button mnemonicParsing="false" onAction="#onInitBoardExtractor" text="Инициализация" />
+					</items>
+				</ToolBar>
+			</top>
+		</BorderPane>
+		<HBox>
+			<children>
+				<TitledPane alignment="TOP_CENTER" animated="false" collapsible="false" prefHeight="554.0" prefWidth="290.0" text="Модель" HBox.hgrow="ALWAYS">
+					<content>
+						<BorderPane fx:id="chessPane" prefHeight="200.0" prefWidth="200.0">
+							<top>
+								<ToolBar prefHeight="0.0" prefWidth="268.0" BorderPane.alignment="CENTER">
+									<items>
+										<Label text="Захват" />
+										<Button mnemonicParsing="false" onAction="#onCapture" text="Сост." />
+										<Button mnemonicParsing="false" onAction="#onCaptureMove" text="Ход" />
+										<Separator orientation="VERTICAL" prefHeight="0.0" prefWidth="0.0" />
+										<ChoiceBox fx:id="angleChoice" prefHeight="26.0" prefWidth="41.0" />
+										<Slider fx:id="slider" blockIncrement="2.0" max="20.0" min="1.0" prefHeight="16.0" prefWidth="81.0" value="8.0" />
+										<Label fx:id="dLabel" text="-" />
+									</items>
+								</ToolBar>
+							</top>
+							<bottom>
+								<TextArea fx:id="logTextArea" prefHeight="230.0" prefWidth="268.0" BorderPane.alignment="CENTER" />
+							</bottom>
+						</BorderPane>
+					</content>
+				</TitledPane>
+			</children>
+		</HBox>
+	</items>
+</SplitPane>
