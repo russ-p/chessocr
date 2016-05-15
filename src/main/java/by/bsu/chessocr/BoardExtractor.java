@@ -1,19 +1,14 @@
 package by.bsu.chessocr;
 
-import static java.lang.Math.PI;
-import static java.util.stream.Collectors.toList;
 import static org.bytedeco.javacpp.opencv_core.CV_32F;
 import static org.bytedeco.javacpp.opencv_core.circle;
 import static org.bytedeco.javacpp.opencv_core.line;
-import static org.bytedeco.javacpp.opencv_imgproc.COLOR_BGR2GRAY;
 import static org.bytedeco.javacpp.opencv_imgproc.CV_CHAIN_APPROX_TC89_KCOS;
-import static org.bytedeco.javacpp.opencv_imgproc.HoughLines;
 import static org.bytedeco.javacpp.opencv_imgproc.RETR_CCOMP;
 import static org.bytedeco.javacpp.opencv_imgproc.approxPolyDP;
 import static org.bytedeco.javacpp.opencv_imgproc.boundingRect;
 import static org.bytedeco.javacpp.opencv_imgproc.contourArea;
 import static org.bytedeco.javacpp.opencv_imgproc.convexHull;
-import static org.bytedeco.javacpp.opencv_imgproc.cvtColor;
 import static org.bytedeco.javacpp.opencv_imgproc.drawContours;
 import static org.bytedeco.javacpp.opencv_imgproc.findContours;
 import static org.bytedeco.javacpp.opencv_imgproc.getPerspectiveTransform;
@@ -50,7 +45,7 @@ public class BoardExtractor {
 
 		drawContours(img, contours, contourIdx, COLOR1, 2, 8, new Mat(), Integer.MAX_VALUE, new Point(0, 0));
 	}
-	
+
 	public void init(Mat img) {
 		Mat img_debug = img.clone();
 
@@ -60,23 +55,6 @@ public class BoardExtractor {
 		drawContours(img_debug, contours, contourIdx, COLOR1, 2, 8, new Mat(), Integer.MAX_VALUE, new Point(0, 0));
 
 		Mat contour = contours.get(contourIdx);
-		List<Point> listOfPoints = contourToListOfPoints(contour);
-
-		// testDrawContourByPoins(listOfPoints, img);
-
-		Point[] corners = findCorners(listOfPoints);
-
-		// testDrawContourByPoins(Arrays.asList(corners), img);
-
-		// отрисовка контура
-		/*
-		 * Mat img_contour = new Mat(img.size(), img.type());
-		 * img_contour.put(BLACK); drawContours(img_contour, contours,
-		 * contourIdx, COLOR1, 1, 8, new Mat(), Integer.MAX_VALUE, new Point(0,
-		 * 0));
-		 * 
-		 * perspective(img_contour, img);
-		 */
 
 		// апроксимация замкнутой курвы, чтобы получить вершины 4-хугольника
 		Mat approxCurve = new Mat();
@@ -145,10 +123,7 @@ public class BoardExtractor {
 
 	private Scalar COLOR1 = new Scalar(0, 0, 255, 0);
 
-	private Scalar COLOR2 = new Scalar(0, 125, 255, 255);
 	private Scalar COLOR3 = new Scalar(0, 100, 100, 100);
-
-	private Scalar BLACK = new Scalar(0, 0, 0, 0);
 
 	private MatVector extractContours(Mat src) {
 		Mat img_bw = Utils.toBW(src);
@@ -203,40 +178,6 @@ public class BoardExtractor {
 		return result;
 	}
 
-	private Point[] findCorners(List<Point> listOfPoints) {
-
-		// 0 3
-		// 1 2
-		int max = Integer.MAX_VALUE;
-
-		int minX = listOfPoints.stream().mapToInt(Point::x).min().getAsInt();
-		int maxX = listOfPoints.stream().mapToInt(Point::x).max().getAsInt();
-		int minY = listOfPoints.stream().mapToInt(Point::y).min().getAsInt();
-		int maxY = listOfPoints.stream().mapToInt(Point::y).max().getAsInt();
-
-		// центральная точка
-		int cX = minX + (maxX - minX) / 2;
-		int cY = minY + (maxY - minY) / 2;
-
-		Point[] result = new Point[] { new Point(max, max), new Point(max, 0), new Point(0, 0), new Point(0, max) };
-
-		for (Point point : listOfPoints) {
-			int x = point.x();
-			int y = point.y();
-			if (x < result[0].x() && y < cY) {
-				result[0] = point;
-			} else if (x < cX && y > result[1].y()) {
-				result[1] = point;
-			} else if (x > result[2].x() && y > cY) {
-				result[2] = point;
-			} else if (x > result[3].x() && y < cY) {
-				result[3] = point;
-			}
-		}
-
-		return result;
-	}
-
 	private void testDrawContourByPoins(List<Point> listOfPoints, Mat img) {
 		Point first = null;
 		Point prev = null;
@@ -253,61 +194,6 @@ public class BoardExtractor {
 			prev = point;
 		}
 		line(img, prev, first, COLOR3);
-	}
-
-	// перспектива
-	private void perspective(Mat img_contour, Mat img) {
-		Mat img_contour_gray = new Mat();
-		cvtColor(img_contour, img_contour_gray, COLOR_BGR2GRAY);
-
-		int houghThreshold = 150;
-		int hough_threshold_step = 40;
-		for (int i = 0; i < houghThreshold / hough_threshold_step; i++) {
-			Mat lines = new Mat();
-			HoughLines(img_contour_gray, lines, 2, PI / 180, houghThreshold - (i * hough_threshold_step));
-			if (lines.cols() == 0)
-				continue;
-
-			ArrayList<Line> linesList = new ArrayList<>();
-
-			FloatIndexer indexer = lines.createIndexer();
-			for (int j = 0; j < indexer.cols(); j++) {
-				Line line = new Line(indexer.get(0, j, 0), indexer.get(0, j, 1));
-				linesList.add(line);
-				// line(img, line.getPt1(), line.getPt2(), COLOR2);
-
-				// line.getCenter();
-				circle(img, line.getCenter(), 5, line.isHorizontal() ? COLOR2 : COLOR3, -1, 0, 0);
-			}
-
-			List<Line> vertical = linesList.stream().filter(Line::isVertical).collect(toList());
-			List<Line> horizontal = linesList.stream().filter(Line::isHorizontal).collect(toList());
-
-			// vertical = Line.filterCloseLines(vertical, false);
-			// horizontal = Line.filterCloseLines(horizontal, true);
-
-			System.out.println("-------");
-			System.out.println(vertical);
-			System.out.println(horizontal);
-
-			Line testLine = new Line(100, (float) Math.PI / 4);
-			// line(img, testLine.getPt1(), testLine.getPt2(), COLOR2);
-
-			if (vertical.size() >= 2 && horizontal.size() >= 2) {
-				for (Line line : horizontal) {
-					// System.err.println(line.getTheta() + " " +
-					// line.isHorizontal());
-					line(img, line.getPt1(), line.getPt2(), COLOR2);
-				}
-				for (Line line : vertical) {
-					// System.err.println(line.getTheta() + " " +
-					// line.isHorizontal());
-					line(img, line.getPt1(), line.getPt2(), COLOR3);
-				}
-				break;
-			}
-		}
-
 	}
 
 }
