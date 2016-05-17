@@ -39,8 +39,8 @@ public class CellsExtractor {
 
 		int x = cellId.getX();
 		int y = cellId.getY();
-		RangePair rangePair = new RangePair( y * dRow + ddRow, y * dRow + dRow - ddRow,
-				 x * dCol + ddCol, x * dCol + dCol - ddCol);
+		RangePair rangePair = new RangePair(y * dRow + ddRow, y * dRow + dRow - ddRow, x * dCol + ddCol,
+				x * dCol + dCol - ddCol);
 		return rangePair.regionCopy(board);
 	}
 
@@ -50,33 +50,36 @@ public class CellsExtractor {
 	}
 
 	public byte check(CellId cellId, Mat img) {
+		// регион исходного изображения для сравнения в HSV
+		Mat srcRegion = Utils.toHSV(getCell(cellId, srcBoard));
 
-		Mat hsvSrcCell = Utils.toHSV(getCell(cellId, srcBoard));
-		Scalar scalar = opencv_core.mean(hsvSrcCell);
+		// средняя яркость текущего изображения
+		Scalar scalar = opencv_core.mean(srcRegion);
 		// исходная клетка слишком белая - шашек там быть не должно
 		if (scalar.get(2) > 150) {
 			return 0;
 		}
 
-		Mat hsvImgCell = Utils.toHSV(getCell(cellId, img));
-		scalar = opencv_core.mean(hsvImgCell);
-		// клетка изображения более белая или черная
-		byte color = (byte) ((scalar.get(2) > 150) ? 2 : 1);
-
-		Mat srcRegion = Utils.toHSV(getCell(cellId, srcBoard));
+		// регион текущего изображения для сравнения в HSV
 		Mat imgRegion = Utils.toHSV(getCell(cellId, img));
+
+		// средняя яркость текущего изображения
+		scalar = opencv_core.mean(imgRegion);
+		// клетка изображения более белая или цветная
+		// Saturation < 50; Value > 150
+		byte color = (byte) ((scalar.get(2) > 150 && scalar.get(1) < 50) ? 2 : 1);
 
 		Mat diff = new Mat();
 		opencv_core.absdiff(srcRegion, imgRegion, diff);
 		opencv_imgproc.threshold(diff, diff, 50, 255, opencv_imgproc.THRESH_BINARY);
 
-		Utils.writeTestImage("reg-" + cellId+"-s", getCell(cellId, srcBoard));
-		Utils.writeTestImage("reg-" + cellId+"-i", getCell(cellId, img));
-		writeTestPiece(diff, cellId );
-
 		Scalar dstMean = opencv_core.mean(diff);
 
 		double d = dstMean.get(2);
+		
+		Utils.writeTestImage("reg-" + cellId + "-s", getCell(cellId, srcBoard));
+		Utils.writeTestImage("reg-" + cellId + "-i", getCell(cellId, img));
+		writeTestPiece(diff, cellId);
 
 		return (byte) (d > dMean ? color : 0);
 	}
