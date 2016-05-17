@@ -188,7 +188,7 @@ public class MainController implements Initializable, ChessBoardModelListener {
 
 	@FXML
 	public void onInitBoardExtractor(ActionEvent event) {
-		// setTestImage("/home/ruslan/Projects/chessocr/2/1.png");
+		setTestImage("/home/ruslan/Projects/chessocr/2/1.png");
 
 		if (stream1.getBuffImage() != null) {
 			Mat chessImg = Utils.convertBuffToMat(stream1.getBuffImage());
@@ -213,7 +213,7 @@ public class MainController implements Initializable, ChessBoardModelListener {
 
 	@FXML
 	public void onCapture(ActionEvent event) {
-		// setTestImage("/home/ruslan/Projects/chessocr/2/4.png");
+		setTestImage("/home/ruslan/Projects/chessocr/2/4.png");
 
 		if (stream1.getBuffImage() != null) {
 			Mat chessImg = Utils.convertBuffToMat(stream1.getBuffImage());
@@ -229,7 +229,7 @@ public class MainController implements Initializable, ChessBoardModelListener {
 
 	@FXML
 	public void onCaptureMove(ActionEvent event) {
-		// setTestImage("/home/ruslan/Projects/chessocr/2/5.png");
+		setTestImage("/home/ruslan/Projects/chessocr/2/5.png");
 
 		if (stream1.getBuffImage() != null) {
 			Mat chessImg = Utils.convertBuffToMat(stream1.getBuffImage());
