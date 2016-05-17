@@ -34,13 +34,13 @@ public class CellsExtractor {
 		int dRow = rows / 8;
 		int dCol = cols / 8;
 
-		int ddRow = dRow / 10;
-		int ddCol = dCol / 10;
+		int ddRow = dRow / 4;
+		int ddCol = dCol / 4;
 
 		int x = cellId.getX();
 		int y = cellId.getY();
-		RangePair rangePair = new RangePair(Math.max(0, y * dRow - ddRow), Math.min(y * dRow + dRow + ddRow, rows),
-				Math.max(0, x * dCol - ddCol), Math.min(x * dCol + dCol + ddCol, cols));
+		RangePair rangePair = new RangePair( y * dRow + ddRow, y * dRow + dRow - ddRow,
+				 x * dCol + ddCol, x * dCol + dCol - ddCol);
 		return rangePair.regionCopy(board);
 	}
 
@@ -70,7 +70,9 @@ public class CellsExtractor {
 		opencv_core.absdiff(srcRegion, imgRegion, diff);
 		opencv_imgproc.threshold(diff, diff, 50, 255, opencv_imgproc.THRESH_BINARY);
 
-		// writeTestPiece(diff, cellId );
+		Utils.writeTestImage("reg-" + cellId+"-s", getCell(cellId, srcBoard));
+		Utils.writeTestImage("reg-" + cellId+"-i", getCell(cellId, img));
+		writeTestPiece(diff, cellId );
 
 		Scalar dstMean = opencv_core.mean(diff);
 

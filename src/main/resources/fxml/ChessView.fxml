@@ -49,7 +49,7 @@
 										<Button mnemonicParsing="false" onAction="#onCaptureMove" text="Ход" />
 										<Separator orientation="VERTICAL" prefHeight="0.0" prefWidth="0.0" />
 										<ChoiceBox fx:id="angleChoice" prefHeight="26.0" prefWidth="41.0" />
-										<Slider fx:id="slider" blockIncrement="2.0" max="20.0" min="1.0" prefHeight="16.0" prefWidth="81.0" value="8.0" />
+										<Slider fx:id="slider" blockIncrement="2.0" max="200.0" min="1.0" prefHeight="16.0" prefWidth="81.0" value="8.0" />
 										<Label fx:id="dLabel" text="-" />
 									</items>
 								</ToolBar>
