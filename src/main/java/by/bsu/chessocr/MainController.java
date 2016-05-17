@@ -173,7 +173,7 @@ public class MainController implements Initializable, ChessBoardModelListener {
 			cam1Image.setImage(imgFromCam);
 			Mat chessImg = Utils.convertBuffToMat(n);
 			Mat extractedBoard = boardExtractor.extract(chessImg);
-			extractedBoard = Utils.toGrayscale(extractedBoard);
+			//extractedBoard = Utils.toGrayscale(extractedBoard);
 			BufferedImage image = Utils.convertMatToBuff(extractedBoard);
 			WritableImage fxImage = SwingFXUtils.toFXImage(image, null);
 			rightImg.setImage(fxImage);
@@ -204,7 +204,7 @@ public class MainController implements Initializable, ChessBoardModelListener {
 			Mat extractedBoard = boardExtractor.extract(chessImg);
 			cellsExtractor.init(extractedBoard);
 
-			extractedBoard = Utils.toGrayscale(extractedBoard);
+			//extractedBoard = Utils.toGrayscale(extractedBoard);
 			BufferedImage image = Utils.convertMatToBuff(extractedBoard);
 			WritableImage fxImage = SwingFXUtils.toFXImage(image, null);
 			rightImg.setImage(fxImage);
