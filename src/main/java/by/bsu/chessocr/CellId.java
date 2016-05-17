@@ -24,10 +24,12 @@ public class CellId {
 
 	private final int x;
 	private final int y;
+	private final boolean white;
 
 	private CellId(int x, int y) {
 		this.x = x;
 		this.y = y;
+		this.white = (x + y) % 2 == 0;
 	}
 
 	public int getX() {
@@ -90,4 +92,7 @@ public class CellId {
 		return true;
 	}
 
+	public boolean isWhite() {
+		return white;
+	}
 }
