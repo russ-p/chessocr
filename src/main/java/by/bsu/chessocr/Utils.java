@@ -20,6 +20,10 @@ import org.bytedeco.javacv.Java2DFrameConverter;
 import org.bytedeco.javacv.OpenCVFrameConverter;
 import org.bytedeco.javacv.OpenCVFrameConverter.ToMat;
 
+/**
+ * Вспомогательные методы для работы с изображениями
+ *
+ */
 public class Utils {
 
 	private static final Java2DFrameConverter frameConverter = new Java2DFrameConverter();

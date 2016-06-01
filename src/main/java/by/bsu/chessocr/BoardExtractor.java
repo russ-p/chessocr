@@ -26,6 +26,10 @@ import org.bytedeco.javacpp.opencv_core.Size;
 import org.bytedeco.javacpp.indexer.FloatIndexer;
 import org.bytedeco.javacpp.indexer.IntIndexer;
 
+/**
+ * Класс содержит логику извлечения из захваченного с камеры изображения изображения доски
+ *
+ */
 public class BoardExtractor {
 
 	private Mat m;
@@ -39,6 +43,7 @@ public class BoardExtractor {
 		return m != null && size != null;
 	}
 
+	// тестовая отрисовка найденного контура
 	public void testDarawContour(Mat img) {
 		MatVector contours = extractContours(img);
 		int contourIdx = findBestContourIndex(contours, img);
@@ -46,62 +51,77 @@ public class BoardExtractor {
 		drawContours(img, contours, contourIdx, COLOR1, 2, 8, new Mat(), Integer.MAX_VALUE, new Point(0, 0));
 	}
 
+	// инициализация 
 	public void init(Mat img) {
+		// копия исходного изображения для отладки
 		Mat img_debug = img.clone();
 
+		// поиск контуров на исходном изображении
 		MatVector contours = extractContours(img);
+		// поиск лучшего контура, возвращается его порядковый номера
 		int contourIdx = findBestContourIndex(contours, img);
 
+		// отрисовка выбранного контура контура на исходном изодбражении для отладки 
 		drawContours(img_debug, contours, contourIdx, COLOR1, 2, 8, new Mat(), Integer.MAX_VALUE, new Point(0, 0));
 
+		// сохраянем ссылку на контур
 		Mat contour = contours.get(contourIdx);
 
-		// апроксимация замкнутой курвы, чтобы получить вершины 4-хугольника
+		// апроксимация замкнутой кривой (контура), чтобы получить вершины 4-хугольника
 		Mat approxCurve = new Mat();
 		approxPolyDP(contour, approxCurve, 10, true);
 
+		// проверка на похожесть найденного многоугольника на четырехугольник
 		if (approxCurve.total() < 4 || approxCurve.total() > 4) {
 			System.err.println("Quad not found");
 			return;
 		}
 
+		// отладочная отрисовка
 		if (approxCurve.total() == 4) {
 			List<Point> listOfPointsCurve = contourToListOfPoints(approxCurve);
 			testDrawContourByPoins(listOfPointsCurve, img_debug);
 		}
 
-		// предполагаемые реальные размеры доски
+		// предполагаемые реальные размеры доски, возвращается прямоугольник, охватывающий контур
 		Rect boundingRect = boundingRect(contour);
 
-		// т.к. доска обычно квадратная то используем только ширину
+		// т.к. доска обычно квадратная, то используем только ширину
 		int width = boundingRect.width();
 
-		// определяем размеры результирующей картинки
+		// определяем размеры результирующей картинки, исходя из известной ширины
 		Mat outputQuad = quad(0, width, //
 				width, width, //
 				width, 0, //
 				0, 0);
 
+		// матрица координат исходного четырехугольника
 		Mat inputQuad = new Mat();
 
 		// отсортируем точки в порядке, которому соответсвуют outputQuad
 		convexHull(approxCurve, inputQuad, true, true);
 
+		// конфертируем в матрицу нужной размерности
 		inputQuad.convertTo(inputQuad, CV_32F);
 
 		// матрица для всех последующих преобразований
 		m = getPerspectiveTransform(inputQuad, outputQuad);
 
+		// сохраняем размеры изображения для последующего преображония
 		size = new Size(2);
 		size.asBuffer().put(width).put(width);
 	}
 
+	// функция извлечения изображения доски 
 	public Mat extract(Mat img) {
+		// матрица для хранения результирующего изображения
 		Mat dest = new Mat(size, img.type());
+		// преобразуем перспективу, используя сохраненные ранее m и size
 		warpPerspective(img, dest, m, size);
 		return dest;
 	}
 
+	// функция создания матрицы, содержащей координаты четырехугольника
 	private Mat quad(float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4) {
 		Mat quad = new Mat(4, 2, CV_32F);
 		FloatIndexer indxr = quad.createIndexer();
@@ -125,8 +145,11 @@ public class BoardExtractor {
 
 	private Scalar COLOR3 = new Scalar(0, 100, 100, 100);
 
+	// функция поиска контуров
 	private MatVector extractContours(Mat src) {
+		// конвертируем в черно-белое изображение
 		Mat img_bw = Utils.toBW(src);
+		// переменные для хранения результата поиска
 		MatVector contours = new MatVector();
 		Mat hierarchy = new Mat();
 		/*
@@ -143,21 +166,31 @@ public class BoardExtractor {
 		return contours;
 	}
 
+	// функция поиска наиболее подходящего контура
 	private int findBestContourIndex(MatVector contours, Mat srcImage) {
+		// веременная переменная для хранения контура
 		Mat contour = null;
+		// переменная для индекса найденного конутра
 		int contourIdx = -1;
+		// общая площадь изображения
 		double imgArea = srcImage.arrayWidth() * srcImage.arrayHeight();
+		// перебор всех контуров
 		for (int i = 0; i < contours.size(); i++) {
 			contour = contours.get(i);
 			contourIdx = i;
 
+			// охватывающий прямоугольник
 			Rect boundingRect = boundingRect(contour);
+			// соотношение сторон найденного прямогольника
 			double rectRatio = Utils.ratio(boundingRect);
 
+			// площадь фигуры, ограниченной контуром
 			double contourArea = contourArea(contour);
 
+			// соотношение площади фигуры ограниченной контуром к общая площади рисунка 
 			double imgContourRatio = Utils.ratio(imgArea, contourArea);
 
+			// если площадь контура более четверти изображения - это подходящий контур
 			if (imgContourRatio > 0.25) {
 				System.out.println(
 						boundingRect.width() + "x" + boundingRect.height() + " " + rectRatio + " " + imgContourRatio);
@@ -167,6 +200,7 @@ public class BoardExtractor {
 		return contourIdx;
 	}
 
+	// функция преобразования контура в список точек 
 	private List<Point> contourToListOfPoints(Mat contour) {
 		ArrayList<Point> result = new ArrayList<>();
 		IntIndexer points = contour.createIndexer(false);
@@ -178,6 +212,7 @@ public class BoardExtractor {
 		return result;
 	}
 
+	// отладочная отрисовка списка точек
 	private void testDrawContourByPoins(List<Point> listOfPoints, Mat img) {
 		Point first = null;
 		Point prev = null;

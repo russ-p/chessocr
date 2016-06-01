@@ -3,6 +3,10 @@ package by.bsu.chessocr;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * Электронная модель доски
+ *
+ */
 public class ChessBoardModel {
 
 	public static interface ChessBoardModelListener {
