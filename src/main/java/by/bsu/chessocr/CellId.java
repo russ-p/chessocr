@@ -3,6 +3,10 @@ package by.bsu.chessocr;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Вспомогательные класс для работы с клетками шахматной доски 8х8
+ *
+ */
 public class CellId {
 
 	private static List<CellId> CHESS_CELL_IDS = null;

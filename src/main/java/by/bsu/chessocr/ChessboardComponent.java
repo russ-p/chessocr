@@ -12,6 +12,10 @@ import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
 
+/**
+ * Компонент визуализации доски
+ *
+ */
 public class ChessboardComponent extends GridPane implements ChessBoardModelListener {
 
 	private final Map<CellId, Shape> figures = new HashMap<>();
